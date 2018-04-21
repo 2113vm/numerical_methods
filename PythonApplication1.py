@@ -57,43 +57,28 @@ def get_minutes(t):
     return x[3] * 60 + x[4]
 
 
+def get_flights_info(d, sol):
+    origin = peoples[d][1]
+    outbound = flights[(origin, destination)][sol[2 * d]]
+    returnf = flights[(destination, origin)][int(sol[2 * d + 1])]
+    return [returnf[0], outbound[1], outbound[2] + returnf[2]]
+
+
 def schedule_cost(sol):
-    totalprice = 0
-    latestarrival = 0
-    earliestdep = 24 * 60
 
-    for d in range(int(len(sol) / 2)):
-        # Получить список прибывающих и убывающих реисов
-        origin = peoples[d][1]
-        outbound = flights[(origin, destination)][int(sol[d])]
-        returnf = flights[(destination, origin)][int(sol[d + 1])]
+    info_flights = [get_flights_info(d, sol) for d in range(len(peoples))]
+    totalprice = sum([flight[2] for flight in info_flights])
+    latestarrival = get_minutes(max(info_flights, key=lambda flight: get_minutes(flight[1]))[1])
+    earliestdep = get_minutes(min(info_flights, key=lambda flight: get_minutes(flight[0]))[0])
 
-        # Полная цена равна сумме цен на билет туда и обратно
-        totalprice += outbound[2]
-        totalprice += returnf[2]
+    totalwait = sum([latestarrival - get_minutes(f[1]) + get_minutes(f[0]) - earliestdep
+                     for f in info_flights])
 
-        # Находим самыи позднии прилет и самыи раннии вылет
-        if latestarrival < get_minutes(outbound[1]):
-            latestarrival = get_minutes(outbound[1])
-        if earliestdep > get_minutes(returnf[0]):
-            earliestdep = get_minutes(returnf[0])
-
-    # Все должны ждать в аэропорту прибытия последнего участника группы.
-    # Обратно все прибывают одновременно и должны ждать свои реисы.
-    totalwait = 0
-    for d in range(int(len(sol) / 2)):
-        origin = peoples[d][1]
-        outbound = flights[(origin, destination)][int(sol[d])]
-        returnf = flights[(destination, origin)][int(sol[d + 1])]
-        totalwait += latestarrival - get_minutes(outbound[1])
-        totalwait += get_minutes(returnf[0]) - earliestdep
-
-        # Для этого решения требуется оплачивать дополнительныи день аренды?
-    # Если да, это обоидется в лишние $50!
     if latestarrival > earliestdep:
         totalprice += 50
 
     return totalprice + totalwait
+
 
 # what is this variable?
 domain = []
