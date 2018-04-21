@@ -1,5 +1,6 @@
 import time
 import random
+import numpy as np
 
 from data import flights, peoples
 
@@ -87,5 +88,10 @@ for people in peoples:
     domain.append(len(flights[(destination, people[1])]) - 1)
 print(domain)
 
-result, score = random_optimize(domain, schedule_cost)
-print(result, score)
+time_results = []
+for _ in range(10):
+    start_time = time.time()
+    result, score = random_optimize(domain, schedule_cost)
+    time_results.append(time.time() - start_time)
+    # print(result, score)
+print("--- %s seconds ---" % np.mean(time_results))
