@@ -29,12 +29,18 @@ destination = 'LGA'
 
 
 def random_optimize(domain, costf):
+    """
+    Function of random search
+    :param domain: list of pair: (air to, air from) and (air from, air to)
+    :param costf: it is function who calculate cost (what?)
+    :return: final cost of travel
+    """
     best = 999999999
     bestr = None
 
     for i in range(0, 1000):
         # Выбрать случаиное решение
-        r = [random.randint(0, domain[i]) for i in range(len(domain))]
+        r = [random.randint(0, domain[j]) for j in range(len(domain))]
 
         # Get the cost
         cost = costf(r)
@@ -43,7 +49,7 @@ def random_optimize(domain, costf):
         if cost < best:
             best = cost
             bestr = r
-    return r, best
+    return bestr, best
 
 
 def get_minutes(t):
@@ -67,8 +73,10 @@ def schedule_cost(sol):
         totalprice += returnf[2]
 
         # Находим самыи позднии прилет и самыи раннии вылет
-        if latestarrival < get_minutes(outbound[1]): latestarrival = get_minutes(outbound[1])
-        if earliestdep > get_minutes(returnf[0]): earliestdep = get_minutes(returnf[0])
+        if latestarrival < get_minutes(outbound[1]):
+            latestarrival = get_minutes(outbound[1])
+        if earliestdep > get_minutes(returnf[0]):
+            earliestdep = get_minutes(returnf[0])
 
     # Все должны ждать в аэропорту прибытия последнего участника группы.
     # Обратно все прибывают одновременно и должны ждать свои реисы.
@@ -87,7 +95,7 @@ def schedule_cost(sol):
 
     return totalprice + totalwait
 
-
+# what is this variable?
 domain = []
 for people in peoples:
     domain.append(len(flights[(people[1], destination)]) - 1)
