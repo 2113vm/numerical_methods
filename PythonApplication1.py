@@ -1,5 +1,6 @@
 import time
 import random
+
 import numpy as np
 
 from data import flights, peoples
@@ -89,7 +90,7 @@ for people in peoples:
 print(domain)
 
 time_results = []
-for _ in range(10):
+for _ in range(100):
     start_time = time.time()
     result, score = random_optimize(domain, schedule_cost)
     time_results.append(time.time() - start_time)
