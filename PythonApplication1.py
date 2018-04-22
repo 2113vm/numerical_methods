@@ -1,3 +1,4 @@
+from multiprocessing import Pool, cpu_count
 import time
 import random
 
@@ -37,21 +38,12 @@ def random_optimize(domain, costf):
     :param costf: it is function who calculate cost (what?)
     :return: final cost of travel
     """
-    best = 999999999
-    bestr = None
 
-    for i in range(0, 1000):
-        # Выбрать случаиное решение
-        r = [random.randint(0, domain[j]) for j in range(len(domain))]
+    pool = Pool(processes=cpu_count())
+    solutions = pool.map(costf, [[random.randint(0, dmn) for dmn in domain] for i in range(1000)])
+    solution = min(solutions, key=lambda sol: sol[1])
 
-        # Get the cost
-        cost = costf(r)
-
-        # Сравнить со стоимостью наилучшего наиденного к этому моменту решения
-        if cost < best:
-            best = cost
-            bestr = r
-    return bestr, best
+    return solution
 
 
 def get_minutes(t):
@@ -79,7 +71,7 @@ def schedule_cost(sol):
     if latestarrival > earliestdep:
         totalprice += 50
 
-    return totalprice + totalwait
+    return sol, totalprice + totalwait
 
 
 # what is this variable?
