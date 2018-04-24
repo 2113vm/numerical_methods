@@ -31,17 +31,22 @@ from data import flights, peoples
 destination = 'LGA'
 
 
-def random_optimize(domain, costf):
+def random_optimize(domain, costf, is_parallel=True):
     """
     Function of random search
     :param domain: list of pair: (air to, air from) and (air from, air to)
     :param costf: it is function who calculate cost (what?)
+    :param is_parallel: if True then parallel
     :return: final cost of travel
     """
 
-    pool = Pool(processes=cpu_count())
-    solutions = pool.map(costf, [[random.randint(0, dmn) for dmn in domain] for i in range(1000)])
-    solution = min(solutions, key=lambda sol: sol[1])
+    if is_parallel:
+        pool = Pool(processes=cpu_count())
+        solutions = pool.map(costf, [[random.randint(0, dmn) for dmn in domain] for i in range(1000)])
+        solution = min(solutions, key=lambda sol: sol[1])
+    else:
+        solutions = map(costf, [[random.randint(0, dmn) for dmn in domain] for i in range(1000)])
+        solution = min(solutions, key=lambda sol: sol[1])
 
     return solution
 
@@ -79,12 +84,19 @@ domain = []
 for people in peoples:
     domain.append(len(flights[(people[1], destination)]) - 1)
     domain.append(len(flights[(destination, people[1])]) - 1)
-print(domain)
 
-time_results = []
+time_results_with_parallel = []
+time_results_without_parallel = []
 for _ in range(100):
     start_time = time.time()
-    result, score = random_optimize(domain, schedule_cost)
-    time_results.append(time.time() - start_time)
-    # print(result, score)
-print("--- %s seconds ---" % np.mean(time_results))
+    random_optimize(domain, schedule_cost)
+    time_results_with_parallel.append(time.time() - start_time)
+
+for _ in range(100):
+    start_time = time.time()
+    random_optimize(domain, schedule_cost, False)
+    time_results_without_parallel.append(time.time() - start_time)
+
+print("--- Time work with parallel = %s seconds ---" % np.mean(time_results_with_parallel))
+print("--- Time work without parallel = %s seconds ---" % np.mean(time_results_without_parallel))
+
