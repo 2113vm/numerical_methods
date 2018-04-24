@@ -27,15 +27,11 @@ from data import flights, peoples
 """
 
 
-# место назначения
-destination = 'LGA'
-
-
 def random_optimize(domain, costf, is_parallel=True):
     """
     Function of random search
     :param domain: list of pair: (air to, air from) and (air from, air to)
-    :param costf: it is function who calculate cost (what?)
+    :param costf: it is function who calculate cost
     :param is_parallel: if True then parallel
     :return: final cost of travel
     """
@@ -57,6 +53,11 @@ def get_minutes(t):
 
 
 def get_flights_info(d, sol):
+    """
+    :param d: number person in list peoples
+    :param sol: random solution
+    :return: tuple (outbound time, return time, total cost flight)
+    """
     origin = peoples[d][1]
     outbound = flights[(origin, destination)][sol[2 * d]]
     returnf = flights[(destination, origin)][int(sol[2 * d + 1])]
@@ -79,24 +80,28 @@ def schedule_cost(sol):
     return sol, totalprice + totalwait
 
 
-# what is this variable?
-domain = []
-for people in peoples:
-    domain.append(len(flights[(people[1], destination)]) - 1)
-    domain.append(len(flights[(destination, people[1])]) - 1)
+if __name__ == '__main__':
 
-time_results_with_parallel = []
-time_results_without_parallel = []
-for _ in range(100):
-    start_time = time.time()
-    random_optimize(domain, schedule_cost)
-    time_results_with_parallel.append(time.time() - start_time)
+    # место назначения
+    destination = 'LGA'
 
-for _ in range(100):
-    start_time = time.time()
-    random_optimize(domain, schedule_cost, False)
-    time_results_without_parallel.append(time.time() - start_time)
+    domain = []
+    for people in peoples:
+        domain.append(len(flights[(people[1], destination)]) - 1)
+        domain.append(len(flights[(destination, people[1])]) - 1)
 
-print("--- Time work with parallel = %s seconds ---" % np.mean(time_results_with_parallel))
-print("--- Time work without parallel = %s seconds ---" % np.mean(time_results_without_parallel))
+    time_results_with_parallel = []
+    time_results_without_parallel = []
+    for _ in range(100):
+        start_time = time.time()
+        random_optimize(domain, schedule_cost)
+        time_results_with_parallel.append(time.time() - start_time)
+
+    for _ in range(100):
+        start_time = time.time()
+        random_optimize(domain, schedule_cost, False)
+        time_results_without_parallel.append(time.time() - start_time)
+
+    print("--- Time work with parallel = %s seconds ---" % np.mean(time_results_with_parallel))
+    print("--- Time work without parallel = %s seconds ---" % np.mean(time_results_without_parallel))
 
