@@ -2,6 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import residue
 
+
+def slau(x: np.ndarray, y: np.ndarray):
+    return np.linalg.inv(x) @ y
+
+
 X = np.array([[3, -1, 0, 0, 0, 0],
               [-1, 3, -1, 0, 0, 0],
               [0, -1, 3, -1, 0, 0],
@@ -12,6 +17,10 @@ X = np.array([[3, -1, 0, 0, 0, 0],
 y = np.array([-1, 2, 2, -2, 2, 2])
 
 solve = np.linalg.solve(X, y)
+print(solve)
+print(X @ solve)
+
+solve = slau(X, y)
 print(solve)
 print(X @ solve)
 
